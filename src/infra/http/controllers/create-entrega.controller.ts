@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import z from 'zod';
+import z, { ZodError } from 'zod';
 
 import { CreateEntregaUseCase } from "../../../application/use-cases/create-entrega.usecase";
 
@@ -21,10 +21,16 @@ export class CreateEntregaController {
             const result = await this.createEntregaUseCase.execute({ status });
 
             return res.status(HttpStatusCode.CREATED).json(result);
-        } catch (err) {
+        } catch (error) {
+            let errorMessage = 'Unknown error';
+            if (error instanceof ZodError)
+                errorMessage = JSON.parse(error.message)[0].message;
+            else if (error instanceof Error)
+                errorMessage = error.message;
+
             return res.status(HttpStatusCode.BAD_REQUEST).json({
-                error: err instanceof Error ? err.message : "Unexpected error"
-            });
+                error: errorMessage
+            })
         }
     }
 }
