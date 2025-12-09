@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { createEntregaFactory } from "../../factories/create-entrega-factory"
+import { createEntregaFactory } from "../../factories/create-entrega.factory"
 
 const entregasRouter = Router();
 
