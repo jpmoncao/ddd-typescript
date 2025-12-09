@@ -16,6 +16,6 @@ export class DespacharEntregaUseCase extends BaseUseCase<DespacharEntregaRequest
 
         entrega.despachar();
 
-        this.entregaRepository.save(entrega);
+        await this.entregaRepository.save(entrega);
     }
 }
