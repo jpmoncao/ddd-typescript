@@ -8,20 +8,14 @@ interface CreateEntregaRequest {
     status?: StatusEntrega;
 }
 
-interface CreateEntregaResponse {
-    entregaId: string;
-}
-
-export class CreateEntregaUseCase extends BaseUseCase<CreateEntregaRequest, CreateEntregaResponse> {
+export class CreateEntregaUseCase extends BaseUseCase<CreateEntregaRequest, void> {
     constructor(private entregaRepository: EntregaRepository) { super() }
 
-    async execute(request: CreateEntregaRequest): Promise<CreateEntregaResponse> {
+    async execute(request: CreateEntregaRequest): Promise<void> {
         const entrega = new Entrega({
             status: request.status || StatusEntrega.PENDENTE
         });
 
         await this.entregaRepository.create(entrega);
-
-        return { entregaId: entrega.id }
     }
 }

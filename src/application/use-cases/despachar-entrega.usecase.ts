@@ -6,14 +6,10 @@ interface DespacharEntregaRequest {
     entregaId: string;
 }
 
-interface DespacharEntregaResponse {
-    message: string;
-}
-
-export class DespacharEntregaUseCase extends BaseUseCase<DespacharEntregaRequest, DespacharEntregaResponse> {
+export class DespacharEntregaUseCase extends BaseUseCase<DespacharEntregaRequest, void> {
     constructor(private entregaRepository: EntregaRepository) { super() }
 
-    async execute(request: DespacharEntregaRequest): Promise<DespacharEntregaResponse> {
+    async execute(request: DespacharEntregaRequest): Promise<void> {
         const entrega = await this.entregaRepository.findById(request.entregaId);
         if (!entrega)
             throw new Error('Entrega não encontrada!')
@@ -21,7 +17,5 @@ export class DespacharEntregaUseCase extends BaseUseCase<DespacharEntregaRequest
         entrega.despachar();
 
         this.entregaRepository.save(entrega);
-
-        return { message: 'O pedido saiu para entrega!' };
     }
 }
