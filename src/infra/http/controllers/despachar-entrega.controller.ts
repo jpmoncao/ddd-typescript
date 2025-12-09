@@ -6,7 +6,7 @@ import { DespacharEntregaUseCase } from '../../../application/use-cases/despacha
 
 
 const despacharEntregaParamsSchema = z.object({
-    entregaId: z.uuid({ message: 'Id da entrega não informado!' })
+    id: z.uuid({ message: 'Id da entrega não informado!' })
 });
 
 export class DespacharEntregaController extends BaseController {
@@ -14,9 +14,9 @@ export class DespacharEntregaController extends BaseController {
 
     handle = async (req: Request, res: Response) => {
         try {
-            const { entregaId } = despacharEntregaParamsSchema.parse(req.params);
+            const { id } = despacharEntregaParamsSchema.parse(req.params);
 
-            await this.despacharEntregaUseCase.execute({ entregaId });
+            await this.despacharEntregaUseCase.execute({ entregaId: id });
 
             return this.ok(res, { message: 'Pedido saiu para entrega!' });
         } catch (error) {
