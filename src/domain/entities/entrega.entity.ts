@@ -1,3 +1,4 @@
+import { DomainRuleError } from "../../core/errors/domain-rule.error";
 import { UniqueEntityID } from '../../core/entities/unique-entity-id.entity';
 import { StatusEntrega } from "../types/entrega";
 
@@ -30,7 +31,7 @@ export class Entrega {
 
     public despachar() {
         if (this._status != StatusEntrega.PENDENTE)
-            throw new Error('A entrega precisar estar PENDENTE para sair para entrega!');
+            throw new DomainRuleError('Apenas entregas com status "PENDENTE" podem ser despachadas.');
 
         this._status = StatusEntrega.CAMINHO;
         this.criarMovimentacao('O pedido saiu para entrega!');

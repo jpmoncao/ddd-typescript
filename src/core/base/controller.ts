@@ -3,49 +3,65 @@ import { ZodError } from 'zod';
 
 import HttpStatusCode from '../../infra/http/utils/status-code';
 
+import { AppError } from '../errors/app-error';
+
 export abstract class BaseController {
     abstract handle(req: Request, res: Response): Promise<Response | void>;
 
     protected analyzeError(res: Response, error: unknown) {
-        let errorMessage = 'Unknown error';
-        if (error instanceof ZodError)
-            errorMessage = JSON.parse(error.message)[0].message;
-        else if (error instanceof Error)
-            errorMessage = error.message;
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({
+                status: error.status,
+                message: error.message
+            });
+        }
 
-        return res.status(HttpStatusCode.BAD_REQUEST).json({
-            error: errorMessage
-        })
+        if (error instanceof ZodError) {
+            return res.status(HttpStatusCode.BAD_REQUEST).json({
+                status: 'zod_validation_error',
+                message: 'Dados inválidos.',
+                issues: error.format()
+            });
+        }
+
+        console.error(error);
+        return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+            status: 'error',
+            message: 'Internal server error.',
+            ...(process.env.NODE_ENV === 'development' && {
+                stack: error instanceof Error ? error.stack : undefined
+            })
+        });
     }
 
     protected ok<T>(res: Response, message: string, dto?: T) {
         if (!!dto) {
-            return res.status(200).json({
+            return res.status(HttpStatusCode.OK).json({
                 message,
                 data: dto ?? []
             });
         } else {
-            return res.sendStatus(200);
+            return res.sendStatus(HttpStatusCode.OK);
         }
     }
 
     protected created<T>(res: Response, message: string, dto?: T) {
-        return res.sendStatus(201).json({
+        return res.sendStatus(HttpStatusCode.CREATED).json({
             message,
             data: dto ?? []
         });
     }
 
     protected clientError(res: Response, message?: string) {
-        return res.status(400).json({ message: message || 'Bad request' });
+        return res.status(HttpStatusCode.BAD_REQUEST).json({ message: message || 'Bad request' });
     }
 
     protected notFound(res: Response, message?: string) {
-        return res.status(404).json({ message: message || 'Not found' });
+        return res.status(HttpStatusCode.NOT_FOUND).json({ message: message || 'Not found' });
     }
 
     protected fail(res: Response, error: Error | string) {
         console.error(error);
-        return res.status(500).json({ message: error.toString() });
+        return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: error.toString() });
     }
 }

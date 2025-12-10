@@ -1,3 +1,5 @@
+import { ValidationError } from "../../core/errors/validation.error";
+
 export interface MovimentacaoProps {
     descricao: string;
     data: Date;
@@ -8,7 +10,7 @@ export class Movimentacao {
 
     constructor(descricao: string, data?: Date) {
         if (descricao.length < 5) {
-            throw new Error("A descrição da movimentação deve ter no mínimo 5 caracteres.");
+            throw new ValidationError("A descrição da movimentação deve ter no mínimo 5 caracteres.");
         }
 
         this.props = {

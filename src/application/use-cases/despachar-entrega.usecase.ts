@@ -1,4 +1,5 @@
 import { BaseUseCase } from "../../core/base/usecase";
+import { ResourceNotFoundError } from '../../core/errors/resource-not-found.error'
 
 import { EntregaRepository } from "../../domain/repositories/entrega.repository";
 
@@ -12,7 +13,7 @@ export class DespacharEntregaUseCase extends BaseUseCase<DespacharEntregaRequest
     async execute(request: DespacharEntregaRequest): Promise<void> {
         const entrega = await this.entregaRepository.findById(request.entregaId);
         if (!entrega)
-            throw new Error('Entrega não encontrada!')
+            throw new ResourceNotFoundError('Entrega');
 
         entrega.despachar();
 
