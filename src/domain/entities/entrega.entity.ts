@@ -1,20 +1,24 @@
 import { DomainRuleError } from "../../core/errors/domain-rule.error";
 import { UniqueEntityID } from '../../core/entities/unique-entity-id.entity';
-import { StatusEntrega } from "../types/entrega";
+import { AggregateRoot } from "../../core/entities/aggregate-root";
 
 import { Movimentacao } from "./movimentacao.entity";
+
+import { StatusEntrega } from "../types/entrega";
+import { EntregaDespachadaEvent } from "../events/entrega-despachada.event";
 
 interface EntregaProps {
     status: StatusEntrega,
     movimentacoes?: Movimentacao[]
 }
 
-export class Entrega {
+export class Entrega extends AggregateRoot {
     private _id: UniqueEntityID;
     private _status: StatusEntrega;
     private _movimentacoes: Movimentacao[];
 
     constructor(props: EntregaProps, id?: string) {
+        super();
         this._id = new UniqueEntityID(id);
         this._status = props.status || StatusEntrega.PENDENTE;
         this._movimentacoes = props.movimentacoes || [];
@@ -35,5 +39,7 @@ export class Entrega {
 
         this._status = StatusEntrega.CAMINHO;
         this.criarMovimentacao('O pedido saiu para entrega!');
+
+        this.addEvent(new EntregaDespachadaEvent(this));
     }
 }

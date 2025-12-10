@@ -1,5 +1,6 @@
 import { BaseUseCase } from "../../core/base/usecase";
 import { ResourceNotFoundError } from '../../core/errors/resource-not-found.error'
+import { DomainEventDispatcher } from "../../core/events/dispatcher";
 
 import { EntregaRepository } from "../../domain/repositories/entrega.repository";
 
@@ -8,7 +9,9 @@ interface DespacharEntregaRequest {
 }
 
 export class DespacharEntregaUseCase extends BaseUseCase<DespacharEntregaRequest, void> {
-    constructor(private entregaRepository: EntregaRepository) { super() }
+    constructor(private entregaRepository: EntregaRepository, dispatcher: DomainEventDispatcher) {
+        super(dispatcher)
+    }
 
     async execute(request: DespacharEntregaRequest): Promise<void> {
         const entrega = await this.entregaRepository.findById(request.entregaId);
@@ -18,5 +21,9 @@ export class DespacharEntregaUseCase extends BaseUseCase<DespacharEntregaRequest
         entrega.despachar();
 
         await this.entregaRepository.save(entrega);
+
+        const dispatchedEvents = await this.dispatchEvents(entrega.domainEvents);
+        if (dispatchedEvents)
+            entrega.clearEvents();
     }
 }
