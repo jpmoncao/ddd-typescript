@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "npx tsx watch src/index.ts",
     "test": "vitest",
-    "prisma:generate": "npx prisma generate --schema=./src/infra/database/prisma/schema.prisma"
+    "prisma:generate": "npx prisma generate --schema=./src/infra/database/prisma/schema.prisma",
+    "prisma:migrate-dev": "npx prisma migrate dev --schema=./src/infra/database/prisma/schema.prisma",
+    "prisma:deploy": "npx prisma migrate deploy --schema=./src/infra/database/prisma/schema.prisma",
+    "prisma:reset": "npx prisma migrate reset --schema=./src/infra/database/prisma/schema.prisma"
   },
   "keywords": [],
   "author": "",

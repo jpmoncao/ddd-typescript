@@ -15,9 +15,16 @@
 
 ### NPM scripts
 ```bash
-npm run prisma:generate # inicia o schema do prisma
 
 npm run dev # hot reload da api
+
+npm run prisma:generate # inicia o schema do prisma
+
+npm run prisma:migrate-dev # verifica alterações no schema 
+
+npm run prisma:deploy # roda as migrations no banco
+
+npm run prisma:reset # reseta o banco
 
 npm run test # testes automatizados
 ```
