@@ -8,31 +8,31 @@ datasource db {
 }
 
 enum StatusEntrega {
-    PENDENTE
-    CAMINHO
-    ENTREGUE
+  PENDENTE
+  CAMINHO
+  CONCLUIDO
 }
 
 model Entrega {
-    id        String        @id
-    status    StatusEntrega @default(PENDENTE)
-    createdAt DateTime      @default(now())
-    updatedAt DateTime      @updatedAt
+  id        String        @id
+  status    StatusEntrega @default(PENDENTE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
-    // Relacionamento 1:N
-    movimentacoes Movimentacao[]
+  // Relacionamento 1:N
+  movimentacoes Movimentacao[]
 
-    @@map("entregas")
+  @@map("entregas")
 }
 
 model Movimentacao {
-    id        String   @id @default(uuid())
-    descricao String
-    data      DateTime
+  id        String   @id @default(uuid())
+  descricao String
+  data      DateTime
 
-    // Chave Estrangeira
-    entregaId String
-    entrega   Entrega @relation(fields: [entregaId], references: [id], onDelete: Cascade)
+  // Chave Estrangeira
+  entregaId String
+  entrega   Entrega @relation(fields: [entregaId], references: [id], onDelete: Cascade)
 
-    @@map("movimentacoes")
+  @@map("movimentacoes")
 }
