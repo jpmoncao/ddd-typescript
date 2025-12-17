@@ -29,6 +29,8 @@ model Movimentacao {
   id        String   @id @default(uuid())
   descricao String
   data      DateTime
+  latitude  Float?
+  longitude Float?
 
   // Chave Estrangeira
   entregaId String

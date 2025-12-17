@@ -4,6 +4,7 @@ import { Movimentacao } from "../../../../domain/entities/movimentacao.entity";
 import { Entrega } from "../../../../domain/entities/entrega.entity";
 
 import { StatusEntrega } from "../../../../domain/types/entrega";
+import { Coordenada } from "../../../../domain/value-objects/coordenada.value-object";
 
 type PrismaEntregaDetalhada = PrismaEntrega & {
     movimentacoes: PrismaMovimentacao[];
@@ -18,7 +19,9 @@ export class PrismaEntregaMapper {
                 create: entrega.movimentacoes.map((movimentacao: Movimentacao) => {
                     return {
                         data: movimentacao.data,
-                        descricao: movimentacao.descricao
+                        descricao: movimentacao.descricao,
+                        latitude: movimentacao.coordenada?.latitude,
+                        longitude: movimentacao.coordenada?.longitude
                     }
                 })
             }
@@ -34,7 +37,11 @@ export class PrismaEntregaMapper {
             {
                 status: raw.status as unknown as StatusEntrega,
                 movimentacoes: raw.movimentacoes.map(
-                    (movRaw) => new Movimentacao(movRaw.descricao, movRaw.data)
+                    (movRaw) => new Movimentacao({
+                        descricao: movRaw.descricao,
+                        data: movRaw.data,
+                        coordenada: (movRaw.latitude && movRaw.longitude) ? new Coordenada(movRaw.latitude, movRaw.longitude) : undefined
+                    })
                 )
             },
             raw.id,
