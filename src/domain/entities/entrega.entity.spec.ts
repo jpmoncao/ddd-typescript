@@ -26,7 +26,7 @@ describe('Entrega Entity', () => {
 
         expect(entrega.status).toEqual(StatusEntrega.CAMINHO);
         expect(entrega.movimentacoes.length).toBe(1);
-        expect(entrega.movimentacoes[0].props.descricao).toEqual('O pedido saiu para entrega!');
+        expect(entrega.movimentacoes[0].descricao).toEqual('O pedido saiu para entrega!');
     });
 
     it('deve lançar DomainRuleError quando despachar uma entrega que não está pendente', () => {
@@ -63,7 +63,7 @@ describe('Entrega Entity', () => {
 
         expect(entrega.status).toEqual(StatusEntrega.CONCLUIDO);
         expect(entrega.movimentacoes.length).toBe(2);
-        expect(entrega.movimentacoes[1].props.descricao).toEqual('A entrega do pedido foi concluída!');
+        expect(entrega.movimentacoes[1].descricao).toEqual('A entrega do pedido foi concluída!');
     });
 
     it('deve lançar DomainRuleError quando concluir uma entrega que não está à caminho', () => {

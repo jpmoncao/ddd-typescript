@@ -6,7 +6,7 @@ export interface MovimentacaoProps {
 }
 
 export class Movimentacao {
-    public readonly props: MovimentacaoProps;
+    private props: MovimentacaoProps;
 
     constructor(descricao: string, data?: Date) {
         if (descricao.length < 5) {
