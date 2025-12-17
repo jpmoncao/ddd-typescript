@@ -6,6 +6,8 @@ import { EntregaRepository } from "../../domain/repositories/entrega.repository"
 
 interface DespacharEntregaRequest {
     entregaId: string;
+    latitude: number;
+    longitude: number;
 }
 
 export class DespacharEntregaUseCase extends BaseUseCase<DespacharEntregaRequest, void> {
@@ -18,7 +20,7 @@ export class DespacharEntregaUseCase extends BaseUseCase<DespacharEntregaRequest
         if (!entrega)
             throw new ResourceNotFoundError('Entrega');
 
-        entrega.despachar();
+        entrega.despachar(request.latitude, request.longitude);
 
         await this.entregaRepository.save(entrega);
 
