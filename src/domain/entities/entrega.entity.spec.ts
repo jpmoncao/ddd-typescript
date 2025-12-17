@@ -142,4 +142,19 @@ describe('Entrega Entity', () => {
             entrega.atualizarLocalizacaoAtual(coordenadaAtualizacaoFake.latitude, coordenadaAtualizacaoFake.longitude);
         }).toThrow('Apenas entregas com status "CAMINHO" podem ser receber atualizações do percurso.');
     });
+
+    it('deve lançar DomainRuleError quando a posição de uma entrega se deslocou menos que 1km', () => {
+        const entrega = new Entrega({
+            status: StatusEntrega.CAMINHO,
+            localizacaoAtual: coordenadaOrigemFake
+        });
+
+        expect(() => {
+            entrega.atualizarLocalizacaoAtual(coordenadaOrigemFake.latitude, coordenadaOrigemFake.longitude);
+        }).toThrow(DomainRuleError);
+
+        expect(() => {
+            entrega.atualizarLocalizacaoAtual((coordenadaOrigemFake.latitude), (coordenadaOrigemFake.longitude));
+        }).toThrow('Não houve atualizações significativas no percurso dessa entrega.');
+    });
 });

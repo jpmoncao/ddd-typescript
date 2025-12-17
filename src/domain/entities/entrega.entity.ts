@@ -72,6 +72,9 @@ export class Entrega extends AggregateRoot {
 
         const coordenada = new Coordenada(latitude, longitude);
 
+        if (!!this._localizacaoAtual && this._localizacaoAtual.calcularDistancia(coordenada) < 1)
+            throw new DomainRuleError('Não houve atualizações significativas no percurso dessa entrega.');
+
         this._localizacaoAtual = coordenada;
 
         this.criarMovimentacaoEntrega(`A pedido está na coordenada (${this._localizacaoAtual.latitude}, ${this._localizacaoAtual.longitude}).`);
