@@ -3,6 +3,7 @@ import { UniqueEntityID } from '../../core/entities/unique-entity-id.entity';
 import { AggregateRoot } from "../../core/entities/aggregate-root";
 
 import { Movimentacao } from "./movimentacao.entity";
+import { Coordenada } from "../value-objects/coordenada.value-object";
 
 import { EntregaDespachadaEvent } from "../events/entrega-despachada.event";
 import { EntregaConcluidaEvent } from "../events/entrega-concluida.event";
@@ -10,41 +11,47 @@ import { EntregaConcluidaEvent } from "../events/entrega-concluida.event";
 import { StatusEntrega } from "../types/entrega";
 
 interface EntregaProps {
-    status: StatusEntrega,
-    movimentacoes?: Movimentacao[]
+    status: StatusEntrega;
+    movimentacoes?: Movimentacao[];
+    localizacaoAtual?: Coordenada;
 }
 
 export class Entrega extends AggregateRoot {
-    [x: string]: any;
     private _id: UniqueEntityID;
     private _status: StatusEntrega;
     private _movimentacoes: Movimentacao[];
-    entrega: any;
-    entrega: any;
-    entrega: any;
+    private _localizacaoAtual?: Coordenada;
 
     constructor(props: EntregaProps, id?: string) {
         super();
         this._id = new UniqueEntityID(id);
         this._status = props.status || StatusEntrega.PENDENTE;
         this._movimentacoes = props.movimentacoes || [];
+        this._localizacaoAtual = props.localizacaoAtual;
     }
 
     get id() { return this._id.toString() };
     get status() { return this._status };
     get movimentacoes() { return [...this._movimentacoes] };
+    get localizacaoAtual() { return this._localizacaoAtual };
 
-    public criarMovimentacao(descricao: string) {
-        const movimentacao = new Movimentacao(descricao)
+    private criarMovimentacaoEntrega(descricao: string) {
+        const movimentacao = new Movimentacao({
+            descricao,
+            coordenada: this._localizacaoAtual
+        });
+
         this._movimentacoes.push(movimentacao);
     }
 
-    public despachar() {
+    public despachar(latitude: number, longitude: number) {
         if (this._status != StatusEntrega.PENDENTE)
             throw new DomainRuleError('Apenas entregas com status "PENDENTE" podem ser despachadas.');
 
+        this._localizacaoAtual = new Coordenada(latitude, longitude);
+
         this._status = StatusEntrega.CAMINHO;
-        this.criarMovimentacao('O pedido saiu para entrega!');
+        this.criarMovimentacaoEntrega('O pedido saiu para entrega!');
 
         this.addEvent(new EntregaDespachadaEvent(this));
     }
@@ -54,8 +61,19 @@ export class Entrega extends AggregateRoot {
             throw new DomainRuleError('Apenas entregas com status "CAMINHO" pode ser concluídas.');
 
         this._status = StatusEntrega.CONCLUIDO;
-        this.criarMovimentacao('A entrega do pedido foi concluída!');
+        this.criarMovimentacaoEntrega('A entrega do pedido foi concluída!');
 
         this.addEvent(new EntregaConcluidaEvent(this));
+    }
+
+    public atualizarLocalizacaoAtual(latitude: number, longitude: number) {
+        if (this._status != StatusEntrega.CAMINHO)
+            throw new DomainRuleError('Apenas entregas com status "CAMINHO" podem ser receber atualizações do percurso.');
+
+        const coordenada = new Coordenada(latitude, longitude);
+
+        this._localizacaoAtual = coordenada;
+
+        this.criarMovimentacaoEntrega(`A pedido está na coordenada (${this._localizacaoAtual.latitude}, ${this._localizacaoAtual.longitude}).`);
     }
 }

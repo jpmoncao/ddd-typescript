@@ -4,7 +4,7 @@ import { ValidationError } from "../../core/errors/validation.error";
 
 describe('Movimentacao Entity', () => {
     it('deve criar um movimentação com a data e hora atual', () => {
-        const movimentacao = new Movimentacao('Teste movimentação');
+        const movimentacao = new Movimentacao({ descricao: 'Teste movimentação' });
 
         expect(movimentacao.descricao).toEqual('Teste movimentação');
         expect(movimentacao.data).toBeInstanceOf(Date);
@@ -12,10 +12,10 @@ describe('Movimentacao Entity', () => {
 
     it('deve disparar um ValidationError ao criar descrição com menos de 5 caracteres', () => {
         expect(() => {
-            new Movimentacao('Test');
+            new Movimentacao({ descricao: 'Test' });
         }).toThrow(ValidationError);
         expect(() => {
-            new Movimentacao('Test');
+            new Movimentacao({ descricao: 'Test' });
         }).toThrow('A descrição da movimentação deve ter no mínimo 5 caracteres.');
     })
 });

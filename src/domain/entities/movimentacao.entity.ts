@@ -1,24 +1,28 @@
 import { ValidationError } from "../../core/errors/validation.error";
+import { Coordenada } from "../value-objects/coordenada.value-object";
 
 export interface MovimentacaoProps {
     descricao: string;
-    data: Date;
+    data?: Date;
+    coordenada?: Coordenada;
 }
 
 export class Movimentacao {
-    private props: MovimentacaoProps;
+    private _descricao: string;
+    private _data: Date;
+    private _coordenada: Coordenada | null;
 
-    constructor(descricao: string, data?: Date) {
-        if (descricao.length < 5) {
+    constructor(props: MovimentacaoProps) {
+        if (props.descricao.length < 5) {
             throw new ValidationError("A descrição da movimentação deve ter no mínimo 5 caracteres.");
         }
 
-        this.props = {
-            descricao,
-            data: data ?? new Date()
-        }
+        this._descricao = props.descricao;
+        this._data = props.data ?? new Date();
+        this._coordenada = props.coordenada ?? null;
     }
 
-    get descricao(): string { return this.props.descricao; }
-    get data(): Date { return this.props.data; }
+    get descricao(): string { return this._descricao; }
+    get data(): Date { return this._data; }
+    get coordenada(): Coordenada | null { return this._coordenada; }
 }
