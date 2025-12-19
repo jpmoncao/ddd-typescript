@@ -9,7 +9,7 @@ interface EntregadorProps {
     senha: string;
 }
 
-export class Entregador extends AggregateRoot {
+export class Entregador {
     private _id: string;
     private _nome: string;
     private _cpf: string;
@@ -18,8 +18,6 @@ export class Entregador extends AggregateRoot {
     private _senha: string;
 
     constructor(props: EntregadorProps, id?: string) {
-        super();
-
         this._id = new UniqueEntityID(id).toString();
         this._nome = props.nome;
         this._cpf = props.cpf;

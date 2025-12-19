@@ -5,6 +5,7 @@ import { despacharEntregaFactory } from "../../factories/despachar-entrega.facto
 import { concluirEntregaFactory } from "../../factories/concluir-entrega.factory";
 import { listarHistoricoEntregaFactory } from "../../factories/listar-historico-entrega.factory";
 import { atualizarLocalizacaoEntregaFactory } from "../../factories/atualizar-localizacao-entrega.factory";
+import { despacharLoteEntregasFactory } from "../../factories/despachar-lote-entregas.factory";
 
 import { verificarEntregadorMiddleware } from "../middleware/verificar-entregador.middleware";
 
@@ -15,8 +16,11 @@ const despacharEntregaController = despacharEntregaFactory();
 const concluirEntregaController = concluirEntregaFactory();
 const listarHistoricoEntregaController = listarHistoricoEntregaFactory();
 const atualizarLocalizacaoEntregaController = atualizarLocalizacaoEntregaFactory();
+const despacharLoteEntregasController = despacharLoteEntregasFactory();
 
 entregasRouter.post("/", createEntregaController.handle);
+
+entregasRouter.patch("/despachar-lote", verificarEntregadorMiddleware, despacharLoteEntregasController.handle);
 entregasRouter.get("/:id/historico", listarHistoricoEntregaController.handle);
 entregasRouter.patch("/:id/despachar", verificarEntregadorMiddleware, despacharEntregaController.handle);
 entregasRouter.patch("/:id/atualizar", verificarEntregadorMiddleware, atualizarLocalizacaoEntregaController.handle);
