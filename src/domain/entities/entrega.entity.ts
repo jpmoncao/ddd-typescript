@@ -16,6 +16,7 @@ interface EntregaProps {
     localizacaoAtual?: Coordenada;
     destino: Coordenada;
     entregadorId?: string;
+    urlComprovanteEntrega?: string;
 }
 
 export class Entrega extends AggregateRoot {
@@ -25,6 +26,15 @@ export class Entrega extends AggregateRoot {
     private _localizacaoAtual?: Coordenada;
     private _destino: Coordenada;
     private _entregadorId?: string;
+    private _urlComprovanteEntrega?: string;
+
+    get id() { return this._id.toString() };
+    get status() { return this._status };
+    get movimentacoes() { return [...this._movimentacoes] };
+    get localizacaoAtual() { return this._localizacaoAtual };
+    get destino() { return this._destino };
+    get entregadorId() { return this._entregadorId };
+    get urlComprovanteEntrega() { return this._urlComprovanteEntrega };
 
     constructor(props: EntregaProps, id?: string) {
         super();
@@ -33,17 +43,11 @@ export class Entrega extends AggregateRoot {
         this._movimentacoes = props.movimentacoes || [];
         this._localizacaoAtual = props.localizacaoAtual;
         this._destino = props.destino;
+        this._urlComprovanteEntrega = props.urlComprovanteEntrega;
 
         // Relacionamento com Entregador (opcional)
         this._entregadorId = props.entregadorId;
     }
-
-    get id() { return this._id.toString() };
-    get status() { return this._status };
-    get movimentacoes() { return [...this._movimentacoes] };
-    get localizacaoAtual() { return this._localizacaoAtual };
-    get destino() { return this._destino };
-    get entregadorId() { return this._entregadorId };
 
     private criarMovimentacaoEntrega(descricao: string) {
         const movimentacao = new Movimentacao({
@@ -76,6 +80,12 @@ export class Entrega extends AggregateRoot {
         if (!this._entregadorId)
             throw new DomainRuleError('A entrega precisa ter um entregador atribuído.');
 
+        if (!this._urlComprovanteEntrega)
+            throw new DomainRuleError('A entrega precisa ter um comprovante de entrega.');
+
+        if (this.calcularDistanciaAtualParaDestino() > 1)
+            throw new DomainRuleError('A entrega precisa estar no destino para ser concluída.');
+
         this._localizacaoAtual = new Coordenada(this.destino.latitude, this.destino.longitude);
 
         this._status = StatusEntrega.CONCLUIDO;
@@ -93,7 +103,7 @@ export class Entrega extends AggregateRoot {
 
         const coordenada = new Coordenada(latitude, longitude);
 
-        if (!!this._localizacaoAtual && this._localizacaoAtual.calcularDistancia(coordenada) < 1)
+        if (!this.houveDeslocamentoEntrega(coordenada))
             throw new DomainRuleError('Não houve atualizações significativas no percurso dessa entrega.');
 
         this._localizacaoAtual = coordenada;
@@ -110,5 +120,13 @@ export class Entrega extends AggregateRoot {
 
     public atribuirEntregador(entregadorId: string) {
         this._entregadorId = entregadorId;
+    }
+
+    public anexarComprovanteEntrega(urlComprovanteEntrega: string) {
+        this._urlComprovanteEntrega = urlComprovanteEntrega;
+    }
+
+    public houveDeslocamentoEntrega(coordenada: Coordenada): boolean {
+        return this._localizacaoAtual && this._localizacaoAtual.calcularDistancia(coordenada) >= 1
     }
 }

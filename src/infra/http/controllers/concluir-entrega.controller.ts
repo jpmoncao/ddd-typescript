@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import z from 'zod';
 
 import { BaseController } from '../../../core/base/controller'
+import { ValidationError } from '../../../core/errors/validation.error';
 
 import { ConcluirEntregaUseCase } from '../../../application/use-cases/concluir-entrega.usecase'
 
@@ -16,7 +17,16 @@ export class ConcluirEntregaController extends BaseController {
         try {
             const { id } = concluirEntregaParamsSchema.parse(req.params);
 
-            await this.concluirEntregaUseCase.execute({ entregaId: id, entregadorId: req.user.id });
+            const file = req.file;
+            if (!file)
+                throw new ValidationError('Comprovante (foto) é obrigatório para concluir a entrega.');
+
+            await this.concluirEntregaUseCase.execute({
+                entregaId: id,
+                entregadorId: req.user.id,
+                fileBody: file.buffer,
+                fileType: file.mimetype
+            });
 
             return this.ok(res, 'Pedido de entrega foi concluído.');
         } catch (error) {

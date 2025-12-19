@@ -4,7 +4,7 @@ import { createEntregadorFactory } from "../../factories/create-entregador.facto
 import { autenticarEntregadorFactory } from "../../factories/autenticar-entregador.factory";
 import { atualizarLocalizacaoEntregadorFactory } from "../../factories/atualizar-localizacao-entregador.factory";
 
-import { verificarEntregadorMiddleware } from "../middleware/verificar-entregador.middleware";
+import { verificarEntregadorMiddleware } from "../middlewares/verificar-entregador.middleware";
 
 const entregadoresRouter = Router();
 

@@ -14,8 +14,9 @@ enum StatusEntrega {
 }
 
 model Entrega {
-  id     String        @id
-  status StatusEntrega @default(PENDENTE)
+  id                    String        @id
+  status                StatusEntrega @default(PENDENTE)
+  urlComprovanteEntrega String?
 
   latitude_destino  Float
   longitude_destino Float
@@ -58,7 +59,7 @@ model Entregador {
   cpf      String @unique
   email    String @unique
   telefone String @unique
-  senha    String 
+  senha    String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

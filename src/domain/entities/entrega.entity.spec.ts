@@ -11,8 +11,8 @@ describe('Entrega Entity', () => {
     const coordenadaOrigemFake = new Coordenada(-1, -1);
     const coordenadaAtualizacaoFake = new Coordenada(0, 0);
     const coordenadaDestinoFake = new Coordenada(1, 1);
-
     const entregadorIdFake = 'entregador_123';
+    const urlComprovanteFake = './comprovante.jpg';
 
     it('deve criar a entrega com o status PENDENTE por padrão', () => {
         const entrega = new Entrega({
@@ -111,8 +111,10 @@ describe('Entrega Entity', () => {
         const entrega = new Entrega({
             status: StatusEntrega.CAMINHO,
             movimentacoes: [new Movimentacao({ descricao: 'O pedido saiu para entrega!' })],
+            localizacaoAtual: coordenadaDestinoFake,
             destino: coordenadaDestinoFake,
-            entregadorId: entregadorIdFake
+            entregadorId: entregadorIdFake,
+            urlComprovanteEntrega: urlComprovanteFake
         }, 'test_id');
 
         entrega.concluirEntrega();
@@ -156,8 +158,10 @@ describe('Entrega Entity', () => {
         const entrega = new Entrega({
             status: StatusEntrega.CAMINHO,
             movimentacoes: [new Movimentacao({ descricao: 'O pedido saiu para entrega!' })],
+            localizacaoAtual: coordenadaDestinoFake,
             destino: coordenadaDestinoFake,
-            entregadorId: entregadorIdFake
+            entregadorId: entregadorIdFake,
+            urlComprovanteEntrega: urlComprovanteFake
         }, 'test_id');
 
         entrega.concluirEntrega();
@@ -165,10 +169,11 @@ describe('Entrega Entity', () => {
         expect(entrega.domainEvents[0].eventName).toEqual('EntregaConcluida');
     });
 
-    it('deve adicionar uma movimetação com coordenadas caso haja uma atualização de posição', () => {
+    it('deve adicionar uma movimentação com coordenadas caso haja uma atualização de posição', () => {
         const entrega = new Entrega({
             status: StatusEntrega.CAMINHO,
             movimentacoes: [new Movimentacao({ descricao: 'O pedido saiu para entrega!', coordenada: coordenadaOrigemFake })],
+            localizacaoAtual: coordenadaOrigemFake,
             destino: coordenadaDestinoFake,
             entregadorId: entregadorIdFake
         }, 'test_id');
@@ -184,6 +189,7 @@ describe('Entrega Entity', () => {
         const entrega = new Entrega({
             status: StatusEntrega.CAMINHO,
             movimentacoes: [new Movimentacao({ descricao: 'O pedido saiu para entrega!', coordenada: coordenadaOrigemFake })],
+            localizacaoAtual: coordenadaOrigemFake,
             destino: coordenadaDestinoFake,
             entregadorId: entregadorIdFake
         }, 'test_id');
@@ -271,13 +277,52 @@ describe('Entrega Entity', () => {
         const entrega = new Entrega({
             status: StatusEntrega.CAMINHO,
             movimentacoes: [new Movimentacao({ descricao: 'O pedido saiu para entrega!' })],
+            localizacaoAtual: coordenadaDestinoFake,
             destino: coordenadaDestinoFake,
-            entregadorId: entregadorIdFake
+            entregadorId: entregadorIdFake,
+            urlComprovanteEntrega: urlComprovanteFake
         }, 'test_id');
 
         entrega.concluirEntrega();
 
         expect(entrega.localizacaoAtual?.latitude).toEqual(1);
         expect(entrega.localizacaoAtual?.longitude).toEqual(1);
+    });
+
+    it('deve lançar DomainRuleError quando concluir uma entrega que não está no destino', () => {
+        const entrega = new Entrega({
+            status: StatusEntrega.CAMINHO,
+            movimentacoes: [new Movimentacao({ descricao: 'O pedido saiu para entrega!' })],
+            localizacaoAtual: coordenadaOrigemFake,
+            destino: coordenadaDestinoFake,
+            entregadorId: entregadorIdFake,
+            urlComprovanteEntrega: urlComprovanteFake
+        }, 'test_id');
+
+        expect(() => {
+            entrega.concluirEntrega();
+        }).toThrow(DomainRuleError);
+
+        expect(() => {
+            entrega.concluirEntrega();
+        }).toThrow('A entrega precisa estar no destino para ser concluída.');
+    });
+
+    it('deve lançar DomainRuleError quando concluir uma entrega sem comprovante de entrega', () => {
+        const entrega = new Entrega({
+            status: StatusEntrega.CAMINHO,
+            movimentacoes: [new Movimentacao({ descricao: 'O pedido saiu para entrega!' })],
+            localizacaoAtual: coordenadaDestinoFake,
+            destino: coordenadaDestinoFake,
+            entregadorId: entregadorIdFake
+        }, 'test_id');
+
+        expect(() => {
+            entrega.concluirEntrega();
+        }).toThrow(DomainRuleError);
+
+        expect(() => {
+            entrega.concluirEntrega();
+        }).toThrow('A entrega precisa ter um comprovante de entrega.');
     });
 });
