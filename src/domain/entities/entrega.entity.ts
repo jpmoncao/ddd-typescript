@@ -35,6 +35,7 @@ export class Entrega extends AggregateRoot {
     get destino() { return this._destino };
     get entregadorId() { return this._entregadorId };
     get urlComprovanteEntrega() { return this._urlComprovanteEntrega };
+    get distanciaAtualParaDestino() { return this._localizacaoAtual.calcularDistancia(this._destino) }
 
     constructor(props: EntregaProps, id?: string) {
         super();
@@ -108,7 +109,14 @@ export class Entrega extends AggregateRoot {
 
         this._localizacaoAtual = coordenada;
 
-        this.criarMovimentacaoEntrega(`O pedido está a ${this.calcularDistanciaAtualParaDestino()} km do destino.`);
+        const distancia = this.calcularDistanciaAtualParaDestino();
+
+        if (this.entregaEstaNasRedondezasDestino(distancia)) {
+            this.criarMovimentacaoEntrega(`O pedido está nas redondezas do destino.`);
+            return;
+        }
+
+        this.criarMovimentacaoEntrega(`O pedido está a ${distancia} km do destino.`);
     }
 
     private calcularDistanciaAtualParaDestino() {
@@ -128,5 +136,9 @@ export class Entrega extends AggregateRoot {
 
     public houveDeslocamentoEntrega(coordenada: Coordenada): boolean {
         return this._localizacaoAtual && this._localizacaoAtual.calcularDistancia(coordenada) >= 1
+    }
+
+    public entregaEstaNasRedondezasDestino(distancia: number): boolean {
+        return distancia < 1;
     }
 }

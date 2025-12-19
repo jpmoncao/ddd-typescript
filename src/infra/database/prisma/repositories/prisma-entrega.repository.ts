@@ -68,7 +68,7 @@ export class PrismaEntregaRepository implements EntregaRepository {
 
     async findAllByEntregadorId(entregadorId: string): Promise<Entrega[]> {
         const raws = await this.prisma.entrega.findMany({
-            where: { entregadorId },
+            where: { entregadorId, status: "CAMINHO" },
             include: { movimentacoes: true }
         });
 

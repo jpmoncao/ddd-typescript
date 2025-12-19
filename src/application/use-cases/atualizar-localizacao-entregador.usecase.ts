@@ -18,11 +18,9 @@ export class AtualizarLocalizacaoEntregadorUseCase extends BaseUseCase<Atualizar
         if (entregas.length === 0)
             throw new ResourceNotFoundError('Entregador');
 
-        const entregasEmCaminho = entregas.filter(entrega => entrega.status === StatusEntrega.CAMINHO);
-
-        for (const entrega of entregasEmCaminho)
+        for (const entrega of entregas)
             entrega.atualizarLocalizacaoAtual(latitude, longitude);
 
-        await this.entregaRepository.saveMany(entregasEmCaminho);
+        await this.entregaRepository.saveMany(entregas);
     }
 }

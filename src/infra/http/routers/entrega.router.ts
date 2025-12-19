@@ -22,7 +22,9 @@ const despacharLoteEntregasController = despacharLoteEntregasFactory();
 entregasRouter.post("/", createEntregaController.handle);
 
 entregasRouter.patch("/despachar-lote", verificarEntregadorMiddleware, despacharLoteEntregasController.handle);
+
 entregasRouter.get("/:id/historico", listarHistoricoEntregaController.handle);
+
 entregasRouter.patch("/:id/despachar", verificarEntregadorMiddleware, despacharEntregaController.handle);
 entregasRouter.patch("/:id/atualizar", verificarEntregadorMiddleware, atualizarLocalizacaoEntregaController.handle);
 entregasRouter.patch("/:id/concluir", verificarEntregadorMiddleware, uploadComprovanteEntrega.single('comprovante'), concluirEntregaController.handle);

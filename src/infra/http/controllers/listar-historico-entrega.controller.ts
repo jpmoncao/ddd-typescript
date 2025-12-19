@@ -20,9 +20,9 @@ export class ListarHistoricoEntregaController extends BaseController {
 
             const { entrega } = await this.listaHistoricoEntregaUseCase.execute({ entregaId: id });
 
-            const response = { entrega: EntregaPresenter.toHTTP(entrega) };
+            const entregasPresented = { entrega: EntregaPresenter.toHTTP(entrega) };
 
-            return this.ok(res, 'Histórico da entrega listado com sucesso!', response);
+            return this.ok(res, 'Histórico da entrega listado com sucesso!', entregasPresented);
         } catch (error) {
             this.analyzeError(res, error)
         }
