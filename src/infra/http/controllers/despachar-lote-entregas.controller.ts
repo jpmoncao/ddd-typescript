@@ -15,7 +15,6 @@ export class DespacharLoteEntregasController extends BaseController {
 
     handle = async (req: Request, res: Response) => {
         try {
-            console.log(req.body);
             const { entregas, latitude, longitude } = despacharLoteEntregasBodySchema.parse(req.body);
 
             await this.despacharLoteEntregasUseCase.execute({ entregas, entregadorId: req.user.id, latitude, longitude });

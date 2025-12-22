@@ -1,5 +1,5 @@
 import { BaseUseCase } from "../../core/base/usecase";
-import { Encrypter } from "../cryptography/encrypter";
+import { Hasher } from "../cryptography/hasher";
 
 import { EntregadorRepository } from "../../domain/repositories/entregador.repository";
 import { Entregador } from "../../domain/entities/entregador.entity";
@@ -19,7 +19,7 @@ interface CreateEntregadorResponse {
 }
 
 export class CreateEntregadorUseCase extends BaseUseCase<CreateEntregadorRequest, CreateEntregadorResponse> {
-    constructor(private entregadorRepository: EntregadorRepository, private encrypter: Encrypter) { super() }
+    constructor(private entregadorRepository: EntregadorRepository, private hasher: Hasher) { super() }
 
     async execute({ nome, cpf, telefone, email, senha }: CreateEntregadorRequest): Promise<CreateEntregadorResponse> {
         const entregadorEmailAlreadyExists = await this.entregadorRepository.findByEmail(email);
@@ -30,7 +30,7 @@ export class CreateEntregadorUseCase extends BaseUseCase<CreateEntregadorRequest
         if (entregadorCPFAlreadyExists)
             throw new ResourceAlreadyExistsError('Entregador');
 
-        const passwordHash = await this.encrypter.encrypt<string>(senha);
+        const passwordHash = await this.hasher.hash(senha);
 
         const entregador = new Entregador({
             nome,

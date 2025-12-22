@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from "express";
 
 import { UserRole } from "../../../core/types/user-role";
 
-import { JwtDecrypter } from '../../cryptography/jwt-decrypter';
+import { JwtEncrypter } from '../../cryptography/jwt-encrypter';
 
 interface JwtTokenPayload extends JwtPayload {
     sub: string;
@@ -28,8 +28,8 @@ const verificarEntregadorMiddleware = async (req: Request, res: Response, next: 
         return res.status(401).json({ message: INVALID_TOKEN_MESSAGE });
 
     try {
-        const decrypter = new JwtDecrypter();
-        const payload = await decrypter.decrypt<JwtTokenPayload>(token);
+        const encrypter = new JwtEncrypter();
+        const payload = await encrypter.decrypt<JwtTokenPayload>(token);
 
         if (!payload)
             return res.status(401).json({ message: INVALID_TOKEN_MESSAGE });

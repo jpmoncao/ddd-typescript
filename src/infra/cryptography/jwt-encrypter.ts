@@ -10,4 +10,10 @@ export class JwtEncrypter implements Encrypter {
             expiresIn: this.expiresIn
         } as SignOptions);
     }
+
+    async decrypt<T>(token: string): Promise<T> {
+        const payload = jwt.verify(token, this.secret);
+
+        return payload as T;
+    }
 }

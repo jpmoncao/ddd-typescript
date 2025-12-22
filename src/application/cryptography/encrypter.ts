@@ -1,3 +1,4 @@
 export interface Encrypter {
-    encrypt<T>(payload: T): Promise<string>;
+    encrypt(payload: Record<string, unknown>): Promise<string>;
+    decrypt<T>(token: string): Promise<T>;
 }

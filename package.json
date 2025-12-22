@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsup src/index.ts --format esm --dts --out-dir dist",
+    "check": "tsc --noEmit",
     "dev": "npx tsx watch src/index.ts",
     "test": "vitest",
     "prisma:generate": "npx prisma generate --schema=./src/infra/database/prisma/schema.prisma",
@@ -27,11 +30,13 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
+    "typescript": "^5.9.3",
     "zod": "^4.1.13"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "prisma": "^5.22.0",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "vitest": "^4.0.15"
   }

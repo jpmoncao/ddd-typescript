@@ -3,7 +3,7 @@ import { UserRole } from "../../core/types/user-role";
 import { InvalidCredentialsError } from "../../core/errors/invalid-credentials";
 
 import { Encrypter } from "../cryptography/encrypter";
-import { Comparer } from "../cryptography/comparer";
+import { Hasher } from "../cryptography/hasher";
 
 import { EntregadorRepository } from "../../domain/repositories/entregador.repository";
 
@@ -17,14 +17,14 @@ interface AutenticarEntregadorResponse {
 }
 
 export class AutenticarEntregadorUseCase extends BaseUseCase<AutenticarEntregadorRequest, AutenticarEntregadorResponse> {
-    constructor(private entregadorRepository: EntregadorRepository, private encrypter: Encrypter, private comparer: Comparer) { super() }
+    constructor(private entregadorRepository: EntregadorRepository, private encrypter: Encrypter, private hasher: Hasher) { super() }
 
     async execute(request: AutenticarEntregadorRequest): Promise<AutenticarEntregadorResponse> {
         const entregador = await this.entregadorRepository.findByEmail(request.email);
         if (!entregador)
             throw new InvalidCredentialsError();
 
-        const senhaValida = await this.comparer.compare(request.senha, entregador.senha);
+        const senhaValida = await this.hasher.compare(request.senha, entregador.senha);
         if (!senhaValida)
             throw new InvalidCredentialsError();
 
