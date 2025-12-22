@@ -3,9 +3,11 @@ import { ResourceNotFoundError } from "../../core/errors/resource-not-found.erro
 
 import { EntregaRepository } from "../../domain/repositories/entrega.repository";
 import { Entrega } from "../../domain/entities/entrega.entity";
+import { ResourceNotAllowedError } from "../../core/errors/resource-not-allowed.error";
 
 interface ListarHistoricoEntregaRequest {
     entregaId: string;
+    destinatarioId: string;
 }
 
 interface ListarHistoricoEntregaResponse {
@@ -20,6 +22,9 @@ export class ListarHistoricoEntregaUseCase extends BaseUseCase<ListarHistoricoEn
 
         if (!entrega)
             throw new ResourceNotFoundError('Entrega');
+
+        if (entrega.destinatarioId !== request.destinatarioId)
+            throw new ResourceNotAllowedError('Entrega');
 
         return { entrega };
     }

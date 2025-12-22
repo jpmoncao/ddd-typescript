@@ -18,7 +18,7 @@ export class ListarHistoricoEntregaController extends BaseController {
         try {
             const { id } = listaHistoricoEntregaParamsSchema.parse(req.params);
 
-            const { entrega } = await this.listaHistoricoEntregaUseCase.execute({ entregaId: id });
+            const { entrega } = await this.listaHistoricoEntregaUseCase.execute({ entregaId: id, destinatarioId: req.user.id });
 
             const entregasPresented = { entrega: EntregaPresenter.toHTTP(entrega) };
 

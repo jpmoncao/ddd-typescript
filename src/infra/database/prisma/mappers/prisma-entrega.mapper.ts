@@ -20,9 +20,8 @@ export class PrismaEntregaMapper {
             latitude_atual: entrega.localizacaoAtual?.latitude,
             longitude_atual: entrega.localizacaoAtual?.longitude,
             urlComprovanteEntrega: entrega.urlComprovanteEntrega,
-            entregador: {
-                connect: entrega.entregadorId ? { id: entrega.entregadorId } : undefined
-            },
+            destinatario: { connect: { id: entrega.destinatarioId } },
+            entregador: { connect: entrega.entregadorId ? { id: entrega.entregadorId } : undefined },
             movimentacoes: {
                 create: entrega.movimentacoes.map((movimentacao: Movimentacao) => {
                     return {
@@ -49,6 +48,7 @@ export class PrismaEntregaMapper {
                     ? new Coordenada(raw.latitude_atual, raw.longitude_atual)
                     : undefined,
                 urlComprovanteEntrega: raw.urlComprovanteEntrega,
+                destinatarioId: raw.destinatarioId,
                 entregadorId: raw.entregadorId || undefined,
                 movimentacoes: raw.movimentacoes.map(
                     (movRaw) => new Movimentacao({

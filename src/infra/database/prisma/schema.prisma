@@ -27,14 +27,16 @@ model Entrega {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Chave Estrangeira
+  destinatarioId String
+  destinatario   Destinatario @relation(fields: [destinatarioId], references: [id], onDelete: Cascade)
+
   // Chave Estrangeira (Opcional - Pode nascer sem dono)
   entregadorId String?
   entregador   Entregador? @relation(fields: [entregadorId], references: [id], onDelete: SetNull)
 
   // Relacionamento 1:N
-  movimentacoes  Movimentacao[]
-  destinatario   Destinatario?  @relation(fields: [destinatarioId], references: [id])
-  destinatarioId String?
+  movimentacoes Movimentacao[]
 
   @@map("entregas")
 }

@@ -12,39 +12,43 @@ import { StatusEntrega } from "../types/entrega";
 
 interface EntregaProps {
     status: StatusEntrega;
-    movimentacoes?: Movimentacao[];
     localizacaoAtual?: Coordenada;
     destino: Coordenada;
-    entregadorId?: string;
     urlComprovanteEntrega?: string;
+    movimentacoes?: Movimentacao[];
+    destinatarioId: string;
+    entregadorId?: string;
 }
 
 export class Entrega extends AggregateRoot {
     private _id: UniqueEntityID;
     private _status: StatusEntrega;
-    private _movimentacoes: Movimentacao[];
     private _localizacaoAtual?: Coordenada;
     private _destino: Coordenada;
-    private _entregadorId?: string;
     private _urlComprovanteEntrega?: string;
+    private _movimentacoes: Movimentacao[];
+    private _destinatarioId: string;
+    private _entregadorId?: string;
 
     get id() { return this._id.toString() };
     get status() { return this._status };
-    get movimentacoes() { return [...this._movimentacoes] };
     get localizacaoAtual() { return this._localizacaoAtual };
     get destino() { return this._destino };
-    get entregadorId() { return this._entregadorId };
-    get urlComprovanteEntrega() { return this._urlComprovanteEntrega };
     get distanciaAtualParaDestino() { return this._localizacaoAtual.calcularDistancia(this._destino) }
+    get urlComprovanteEntrega() { return this._urlComprovanteEntrega };
+    get movimentacoes() { return [...this._movimentacoes] };
+    get destinatarioId() { return this._destinatarioId };
+    get entregadorId() { return this._entregadorId };
 
     constructor(props: EntregaProps, id?: string) {
         super();
         this._id = new UniqueEntityID(id);
         this._status = props.status || StatusEntrega.PENDENTE;
-        this._movimentacoes = props.movimentacoes || [];
         this._localizacaoAtual = props.localizacaoAtual;
         this._destino = props.destino;
         this._urlComprovanteEntrega = props.urlComprovanteEntrega;
+        this._movimentacoes = props.movimentacoes || [];
+        this._destinatarioId = props.destinatarioId;
 
         // Relacionamento com Entregador (opcional)
         this._entregadorId = props.entregadorId;
