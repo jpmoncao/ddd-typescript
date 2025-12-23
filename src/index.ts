@@ -6,6 +6,8 @@ import { entregasRouter } from "./infra/http/routers/entrega.router";
 import { entregadoresRouter } from "./infra/http/routers/entregador.router";
 import { destinatariosRouter } from "./infra/http/routers/destinatario.router";
 
+import { emailWorker } from './infra/jobs/workers/email.worker'
+
 dotenv.config({ quiet: true });
 
 // Configurações da API
@@ -24,7 +26,8 @@ app.use('/entregas', entregasRouter);
 app.use('/entregadores', entregadoresRouter);
 app.use('/destinatarios', destinatariosRouter);
 
-app.listen(
-    PORT,
-    () => { console.log('API is running: ' + API_URL) }
-);
+// Iniciando API
+app.listen(PORT, () => { console.log('✅ API is running: ' + API_URL) });
+
+// Iniciando Email Worker
+emailWorker('✅ Email Worker is running.');

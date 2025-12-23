@@ -3,7 +3,7 @@ import { DomainEventDispatcher } from "../../core/events/dispatcher";
 import { ResourceNotFoundError } from "../../core/errors/resource-not-found.error";
 import { ResourceNotAllowedError } from "../../core/errors/resource-not-allowed.error";
 
-import { StorageGateway } from "../gateway/storage";
+import { StorageGateway } from "../gateways/storage.gateway";
 
 import { EntregaRepository } from "../../domain/repositories/entrega.repository";
 

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { StorageGateway, UploadParams } from "../../application/gateway/storage";
+import { StorageGateway, UploadParams } from "../../application/gateways/storage.gateway";
 
 export class DiskStorageGateway implements StorageGateway {
     private uploadFolder: string = path.resolve(process.cwd(), 'uploads');

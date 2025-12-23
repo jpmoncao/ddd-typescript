@@ -33,7 +33,7 @@ export class CreateDestinatarioUseCase extends BaseUseCase<CreateDestinatarioReq
         const destinatarioTelefoneAlreadyExists = await this.destinatarioRepository.findByTelefone(telefone);
         if (destinatarioTelefoneAlreadyExists)
             throw new ResourceAlreadyExistsError('Destinatario');
-        
+
         const passwordHash = await this.hasher.hash(senha);
 
         const destinatario = new Destinatario({

@@ -7,22 +7,25 @@ import { DomainEventDispatcher } from "../../core/events/dispatcher";
 import { DespacharLoteEntregasController } from "../http/controllers/despachar-lote-entregas.controller";
 import { DespacharLoteEntregasUseCase } from "../../application/use-cases/despachar-lote-entregas.usecase";
 import { EntregaDespachadaEvent } from "../../domain/events/entrega-despachada.event";
-import { NodemailerMailGateway } from "../gateway/nodemailer-mail.gateway";
+import { EmailQueue } from "../jobs/queues/email.queue";
 
 export function despacharLoteEntregasFactory(): DespacharLoteEntregasController {
+    // Repositories
     const entregaRepository = new PrismaEntregaRepository(prisma);
     const entregadorRepository = new PrismaEntregadorRepository(prisma);
     const destinatarioRepository = new PrismaDestinatarioRepository(prisma);
 
-    const mailGateway = new NodemailerMailGateway();
+    // Gateways
+    const queue = new EmailQueue();
 
-    const handler = new EnviarEmailDespachoHandler(destinatarioRepository, mailGateway);
+    // Event Handler
+    const handler = new EnviarEmailDespachoHandler(destinatarioRepository, queue);
 
+    // Events Dispatcher
     const dispatcher = new DomainEventDispatcher();
     dispatcher.register(EntregaDespachadaEvent.eventName, handler.handle)
 
     const useCase = new DespacharLoteEntregasUseCase(entregaRepository, entregadorRepository, dispatcher);
     const controller = new DespacharLoteEntregasController(useCase);
-
     return controller;
 }

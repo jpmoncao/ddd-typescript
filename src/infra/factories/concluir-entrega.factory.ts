@@ -7,23 +7,25 @@ import { ConcluirEntregaUseCase } from "../../application/use-cases/concluir-ent
 import { ConcluirEntregaController } from "../http/controllers/concluir-entrega.controller";
 import { EntregaConcluidaEvent } from "../../domain/events/entrega-concluida.event";
 import { DiskStorageGateway } from "../gateway/disk-storage.gateway";
-import { NodemailerMailGateway } from "../gateway/nodemailer-mail.gateway";
+import { EmailQueue } from "../jobs/queues/email.queue";
 
 export function concluirEntregaFactory(): ConcluirEntregaController {
+    // Repositories
     const entregaRepository = new PrismaEntregaRepository(prisma);
     const destinatarioRepository = new PrismaDestinatarioRepository(prisma);
 
-    const mailGateway = new NodemailerMailGateway();
+    // Gateways
+    const storage = new DiskStorageGateway();
+    const queue = new EmailQueue();
 
-    const handler = new EnviarEmailEntregaConcluidaHandler(destinatarioRepository, mailGateway);
+    // Event Handler
+    const handler = new EnviarEmailEntregaConcluidaHandler(destinatarioRepository, queue);
 
+    // Events Dispather
     const dispatcher = new DomainEventDispatcher();
     dispatcher.register(EntregaConcluidaEvent.eventName, handler.handle);
 
-    const storage = new DiskStorageGateway();
-
     const useCase = new ConcluirEntregaUseCase(entregaRepository, dispatcher, storage);
     const controller = new ConcluirEntregaController(useCase);
-
     return controller;
 }

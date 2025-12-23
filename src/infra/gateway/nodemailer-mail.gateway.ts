@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-import { MailGateway, MailTo, MailBody } from "../../application/gateway/mail";
+import { MailGateway, MailTo, MailBody } from "../../application/gateways/mail.gateway";
 
 export class NodemailerMailGateway implements MailGateway {
     private DEV_MODE = process.env.NODE_ENV !== 'production';
@@ -48,7 +48,7 @@ export class NodemailerMailGateway implements MailGateway {
         });
 
         if (this.DEV_MODE) {
-            console.log(`[📧 Preview] URL: ${nodemailer.getTestMessageUrl(message)}`);
+            console.log(`[📧 Mailservice] URL: ${nodemailer.getTestMessageUrl(message)}`);
             return message!;
         }
 
