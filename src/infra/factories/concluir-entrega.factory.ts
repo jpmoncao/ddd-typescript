@@ -1,21 +1,25 @@
 import { prisma } from "../database/prisma/client";
 import { PrismaEntregaRepository } from "../database/prisma/repositories/prisma-entrega.repository"
+import { PrismaDestinatarioRepository } from "../database/prisma/repositories/prisma-destinatario.repository";
+import { EnviarEmailEntregaConcluidaHandler } from "../../application/handlers/enviar-email-entrega-concluida.handler";
 import { DomainEventDispatcher } from "../../core/events/dispatcher";
-import { enviarEmailEntregaConcluidaHandler } from "../../application/handlers/enviar-email-entrega-concluida.handler";
 import { ConcluirEntregaUseCase } from "../../application/use-cases/concluir-entrega.usecase";
 import { ConcluirEntregaController } from "../http/controllers/concluir-entrega.controller";
 import { EntregaConcluidaEvent } from "../../domain/events/entrega-concluida.event";
 import { DiskStorageGateway } from "../gateway/disk-storage";
 
 export function concluirEntregaFactory(): ConcluirEntregaController {
-    const repository = new PrismaEntregaRepository(prisma);
+    const entregaRepository = new PrismaEntregaRepository(prisma);
+    const destinatarioRepository = new PrismaDestinatarioRepository(prisma);
+
+    const handler = new EnviarEmailEntregaConcluidaHandler(destinatarioRepository);
 
     const dispatcher = new DomainEventDispatcher();
-    dispatcher.register(EntregaConcluidaEvent.eventName, enviarEmailEntregaConcluidaHandler)
+    dispatcher.register(EntregaConcluidaEvent.eventName, handler.handle);
 
     const storage = new DiskStorageGateway();
 
-    const useCase = new ConcluirEntregaUseCase(repository, dispatcher, storage);
+    const useCase = new ConcluirEntregaUseCase(entregaRepository, dispatcher, storage);
     const controller = new ConcluirEntregaController(useCase);
 
     return controller;

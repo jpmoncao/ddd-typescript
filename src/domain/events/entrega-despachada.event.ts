@@ -2,10 +2,15 @@ import { DomainEvent } from '../../core/events/domain-event'
 
 import { Entrega } from '../entities/entrega.entity'
 
+interface EntregaDespachadaPayload {
+    entregaId: string;
+    destinatarioId: string
+}
+
 export class EntregaDespachadaEvent implements DomainEvent {
     public readonly occurredAt: Date;
     public readonly eventName: string;
-    public readonly payload: { entregaId: string; emailCliente?: string };
+    public readonly payload: EntregaDespachadaPayload;
 
     public static eventName = 'EntregaDespachada';
 
@@ -13,9 +18,9 @@ export class EntregaDespachadaEvent implements DomainEvent {
         this.occurredAt = new Date();
         this.payload = {
             entregaId: entrega.id,
-            emailCliente: 'cliente@exemplo.com'
+            destinatarioId: entrega.destinatarioId
         }
-        
+
         this.eventName = EntregaDespachadaEvent.eventName;
     }
 }
