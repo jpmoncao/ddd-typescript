@@ -6,13 +6,16 @@ import { DomainEventDispatcher } from "../../core/events/dispatcher";
 import { ConcluirEntregaUseCase } from "../../application/use-cases/concluir-entrega.usecase";
 import { ConcluirEntregaController } from "../http/controllers/concluir-entrega.controller";
 import { EntregaConcluidaEvent } from "../../domain/events/entrega-concluida.event";
-import { DiskStorageGateway } from "../gateway/disk-storage";
+import { DiskStorageGateway } from "../gateway/disk-storage.gateway";
+import { NodemailerMailGateway } from "../gateway/nodemailer-mail.gateway";
 
 export function concluirEntregaFactory(): ConcluirEntregaController {
     const entregaRepository = new PrismaEntregaRepository(prisma);
     const destinatarioRepository = new PrismaDestinatarioRepository(prisma);
 
-    const handler = new EnviarEmailEntregaConcluidaHandler(destinatarioRepository);
+    const mailGateway = new NodemailerMailGateway();
+
+    const handler = new EnviarEmailEntregaConcluidaHandler(destinatarioRepository, mailGateway);
 
     const dispatcher = new DomainEventDispatcher();
     dispatcher.register(EntregaConcluidaEvent.eventName, handler.handle);
