@@ -19,9 +19,11 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.2.0",
     "@bull-board/api": "^6.15.0",
     "@bull-board/express": "^6.15.0",
     "@prisma/client": "^5.22.0",
+    "@scalar/express-api-reference": "^0.8.30",
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",

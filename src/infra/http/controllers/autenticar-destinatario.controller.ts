@@ -1,16 +1,27 @@
-import { Request, Response } from 'express';
 import z from 'zod';
+import { Request, Response } from 'express';
+
+import { RouteDocsConfig } from '../docs/describe-route';
+import HttpStatusCode from '../utils/status-code';
 
 import { BaseController } from '../../../core/base/controller'
 import { AutenticarDestinatarioUseCase } from "../../../application/use-cases/autenticar-destinatario.usecase";
-
-const autenticarDestinatarioBodySchema = z.object({
-    email: z.email({ message: "Email inválido" }),
-    senha: z.string({ message: "Senha inválida" }).min(6, { message: "Senha deve ter no mínimo 6 caracteres" })
-});
+import { autenticarDestinatarioBodySchema } from '../../../application/dtos/autenticar-destinatario.dto';
 
 export class AutenticarDestinatarioController extends BaseController {
     constructor(private autenticarDestinatarioUseCase: AutenticarDestinatarioUseCase) { super() }
+
+    public docs: RouteDocsConfig = {
+        summary: 'Efetuar login do destinatário',
+        tags: ['Destinatários'],
+        body: autenticarDestinatarioBodySchema,
+        response: {
+            [HttpStatusCode.OK]: {
+                description: 'Login efetuado com sucesso!',
+                schema: z.object({ token: z.jwt() })
+            }
+        }
+    };
 
     handle = async (req: Request, res: Response) => {
         try {
@@ -18,7 +29,7 @@ export class AutenticarDestinatarioController extends BaseController {
 
             const { token } = await this.autenticarDestinatarioUseCase.execute({ email, senha });
 
-            return this.created(res, "Login efetuado com sucesso!", { token });
+            return this.ok(res, "Login efetuado com sucesso!", { token });
         } catch (error) {
             this.analyzeError(res, error)
         }

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { createRouteGroup } from "../../../core/base/router-group";
 
 import { createEntregaFactory } from "../../factories/create-entrega.factory"
 import { despacharEntregaFactory } from "../../factories/despachar-entrega.factory";
@@ -11,7 +11,7 @@ import { verificarEntregadorMiddleware } from "../middlewares/verificar-entregad
 import { verificarDestinatarioMiddleware } from "../middlewares/verificar-destinatario.middleware";
 import { uploadComprovanteEntrega } from "../middlewares/upload-comprovante-entrega.middleware";
 
-const entregasRouter = Router();
+const group = createRouteGroup('/entregas');
 
 const createEntregaController = createEntregaFactory();
 const despacharEntregaController = despacharEntregaFactory();
@@ -20,12 +20,12 @@ const listarHistoricoEntregaController = listarHistoricoEntregaFactory();
 const atualizarLocalizacaoEntregaController = atualizarLocalizacaoEntregaFactory();
 const despacharLoteEntregasController = despacharLoteEntregasFactory();
 
-entregasRouter.post("/", createEntregaController.handle);
+group.route('post', "/", createEntregaController);
+group.route('patch', "/despachar-lote", despacharLoteEntregasController, verificarEntregadorMiddleware);
+group.route('get', "/:id/historico", listarHistoricoEntregaController, verificarDestinatarioMiddleware);
+group.route('patch', "/:id/despachar", despacharEntregaController, verificarEntregadorMiddleware);
+group.route('patch', "/:id/atualizar-localizacao", atualizarLocalizacaoEntregaController, verificarEntregadorMiddleware);
+group.route('patch', "/:id/concluir", concluirEntregaController, verificarEntregadorMiddleware, uploadComprovanteEntrega.single('comprovante'));
 
-entregasRouter.patch("/despachar-lote", verificarEntregadorMiddleware, despacharLoteEntregasController.handle);
-entregasRouter.get("/:id/historico", verificarDestinatarioMiddleware, listarHistoricoEntregaController.handle);
-entregasRouter.patch("/:id/despachar", verificarEntregadorMiddleware, despacharEntregaController.handle);
-entregasRouter.patch("/:id/atualizar", verificarEntregadorMiddleware, atualizarLocalizacaoEntregaController.handle);
-entregasRouter.patch("/:id/concluir", verificarEntregadorMiddleware, uploadComprovanteEntrega.single('comprovante'), concluirEntregaController.handle);
-
+const entregasRouter = group.router;
 export { entregasRouter };

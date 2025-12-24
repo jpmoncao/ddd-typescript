@@ -1,16 +1,29 @@
-import { Request, Response } from 'express';
 import z from 'zod';
+import { Request, Response } from 'express';
+
+import { RouteDocsConfig } from '../docs/describe-route';
+import HttpStatusCode from '../utils/status-code';
 
 import { BaseController } from '../../../core/base/controller'
 import { AtualizarLocalizacaoEntregadorUseCase } from '../../../application/use-cases/atualizar-localizacao-entregador.usecase';
-
-const atualizarLocalizacaoEntregaBodySchema = z.object({
-    latitude: z.number({ message: 'Latitude não informada!' }),
-    longitude: z.number({ message: 'Longitude não informada!' })
-});
+import { atualizarLocalizacaoEntregaBodySchema } from '../../../application/dtos/atualizar-localizacao-entrega.dto';
+import { UserRole } from '../../../core/types/user-role';
 
 export class AtualizarLocalizacaoEntregadorController extends BaseController {
     constructor(private atualizarLocalizacaoEntregadorUseCase: AtualizarLocalizacaoEntregadorUseCase) { super() }
+
+    public docs: RouteDocsConfig = {
+        summary: 'Atualizar a localização atual do entregador',
+        tags: ['Entregadores'],
+        roles: [UserRole.ENTREGADOR],
+        body: atualizarLocalizacaoEntregaBodySchema,
+        response: {
+            [HttpStatusCode.OK]: {
+                description: 'Entregador teve sua localização atualizada com sucesso.',
+                schema: z.object()
+            }
+        }
+    };
 
     handle = async (req: Request, res: Response) => {
         try {

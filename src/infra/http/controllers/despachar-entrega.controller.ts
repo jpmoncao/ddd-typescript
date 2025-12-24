@@ -1,21 +1,30 @@
-import { Request, Response } from 'express';
 import z from 'zod';
+import { Request, Response } from 'express';
+
+import { RouteDocsConfig } from '../docs/describe-route';
+import HttpStatusCode from '../utils/status-code';
 
 import { BaseController } from '../../../core/base/controller'
 import { DespacharEntregaUseCase } from '../../../application/use-cases/despachar-entrega.usecase'
-
-
-const despacharEntregaParamsSchema = z.object({
-    id: z.uuid({ message: 'Id da entrega não informado!' })
-});
-
-const despacharEntregaBodySchema = z.object({
-    latitude: z.number({ message: 'Latitude não informada!' }),
-    longitude: z.number({ message: 'Longitude não informada!' })
-});
+import { despacharEntregaBodySchema, despacharEntregaParamsSchema } from '../../../application/dtos/despachar-entrega.dto';
+import { UserRole } from '../../../core/types/user-role';
 
 export class DespacharEntregaController extends BaseController {
     constructor(private despacharEntregaUseCase: DespacharEntregaUseCase) { super() }
+
+    public docs: RouteDocsConfig = {
+        summary: 'Despachar uma entrega',
+        tags: ['Entregas'],
+        roles: [UserRole.ENTREGADOR],
+        params: despacharEntregaParamsSchema,
+        body: despacharEntregaBodySchema,
+        response: {
+            [HttpStatusCode.OK]: {
+                description: 'Pedido saiu para entrega.',
+                schema: z.object()
+            }
+        }
+    };
 
     handle = async (req: Request, res: Response) => {
         try {

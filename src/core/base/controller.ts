@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 import { ZodError } from 'zod';
 
 import HttpStatusCode from '../../infra/http/utils/status-code';
+import { RouteDocsConfig } from '../../infra/http/docs/describe-route';
 
 import { AppError } from '../errors/app-error';
 
 export abstract class BaseController {
     abstract handle(req: Request, res: Response): Promise<Response | void>;
+    abstract docs: RouteDocsConfig;
 
     protected analyzeError(res: Response, error: unknown) {
         if (error instanceof AppError) {

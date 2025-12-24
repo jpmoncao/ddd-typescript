@@ -1,17 +1,33 @@
-import { Request, Response } from 'express';
 import z from 'zod';
+import { Request, Response } from 'express';
+
+import { RouteDocsConfig } from '../docs/describe-route';
+import HttpStatusCode from '../utils/status-code';
 
 import { BaseController } from '../../../core/base/controller'
 import { ValidationError } from '../../../core/errors/validation.error';
 
 import { ConcluirEntregaUseCase } from '../../../application/use-cases/concluir-entrega.usecase'
-
-const concluirEntregaParamsSchema = z.object({
-    id: z.uuid({ message: 'Id da entrega não informado!' })
-});
+import { concluirEntregaBodySchema, concluirEntregaParamsSchema } from '../../../application/dtos/concluir-entrega.dto';
+import { UserRole } from '../../../core/types/user-role';
 
 export class ConcluirEntregaController extends BaseController {
     constructor(private concluirEntregaUseCase: ConcluirEntregaUseCase) { super() }
+
+    public docs: RouteDocsConfig = {
+        contentType: 'multipart/form-data',
+        summary: 'Concluir uma entrega',
+        tags: ['Entregas'],
+        roles: [UserRole.ENTREGADOR],
+        body: concluirEntregaBodySchema,
+        params: concluirEntregaParamsSchema,
+        response: {
+            [HttpStatusCode.OK]: {
+                description: 'Pedido de entrega foi concluído.',
+                schema: z.object()
+            }
+        }
+    };
 
     handle = async (req: Request, res: Response) => {
         try {
