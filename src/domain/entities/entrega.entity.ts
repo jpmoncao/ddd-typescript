@@ -126,6 +126,9 @@ export class Entrega extends AggregateRoot {
     private calcularDistanciaAtualParaDestino() {
         if (!this._localizacaoAtual)
             throw new DomainRuleError('A localização atual da entrega não foi definida.');
+        
+        if (!this._destino)
+            throw new DomainRuleError('O destino da entrega não foi definido.');
 
         return this._localizacaoAtual.calcularDistancia(this._destino);
     }

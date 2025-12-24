@@ -1,5 +1,5 @@
 import { Worker } from "bullmq";
-import { connection } from "../../database/redis/conn";
+import { redisConn } from "../../database/redis/conn";
 import { EmailQueue } from "../queues/email.queue";
 import { NodemailerMailGateway } from "../../gateway/nodemailer-mail.gateway";
 import { EmailJobProcessor } from "../processors/email.processor";
@@ -16,7 +16,7 @@ export function emailWorker(message: string): Worker {
     const worker = new Worker(
         EmailQueue.queueName,
         processor.process,
-        { connection, concurrency: 5 }
+        { connection: redisConn, concurrency: 5 }
     );
 
     if (worker)

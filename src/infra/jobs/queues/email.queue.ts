@@ -1,5 +1,5 @@
 import { Queue } from 'bullmq';
-import { connection } from '../../database/redis/conn';
+import { redisConn } from '../../database/redis/conn';
 import { JobQueue } from '../../../application/gateways/job-queue.gateway';
 import { EmailJobName } from '../job-names';
 
@@ -13,7 +13,7 @@ export class EmailQueue implements JobQueue<EmailJobName> {
 
     constructor() {
         this._bullQueue = new Queue(EmailQueue.queueName, {
-            connection: connection,
+            connection: redisConn,
             defaultJobOptions: {
                 removeOnComplete: true,
                 attempts: 3,

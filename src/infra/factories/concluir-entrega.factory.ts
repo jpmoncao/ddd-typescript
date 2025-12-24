@@ -8,11 +8,17 @@ import { ConcluirEntregaController } from "../http/controllers/concluir-entrega.
 import { EntregaConcluidaEvent } from "../../domain/events/entrega-concluida.event";
 import { DiskStorageGateway } from "../gateway/disk-storage.gateway";
 import { EmailQueue } from "../jobs/queues/email.queue";
+import { RedisCacheProvider } from "../providers/redis-cache.provider";
+import { RedisEntregaRepository } from "../database/redis/repositories/redis-entregas.repository";
 
 export function concluirEntregaFactory(): ConcluirEntregaController {
     // Repositories
     const entregaRepository = new PrismaEntregaRepository(prisma);
     const destinatarioRepository = new PrismaDestinatarioRepository(prisma);
+
+    // Cache Repository
+    const cacheProvider = new RedisCacheProvider();
+    const entregaCacheRepository = new RedisEntregaRepository(cacheProvider);
 
     // Gateways
     const storage = new DiskStorageGateway();
@@ -25,7 +31,7 @@ export function concluirEntregaFactory(): ConcluirEntregaController {
     const dispatcher = new DomainEventDispatcher();
     dispatcher.register(EntregaConcluidaEvent.eventName, handler.handle);
 
-    const useCase = new ConcluirEntregaUseCase(entregaRepository, dispatcher, storage);
+    const useCase = new ConcluirEntregaUseCase(entregaRepository, dispatcher, storage, entregaCacheRepository);
     const controller = new ConcluirEntregaController(useCase);
     return controller;
 }

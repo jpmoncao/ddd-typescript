@@ -1,7 +1,10 @@
 import IORedis from 'ioredis';
+import { pinoLogger } from '../../loggers/pino.logger';
 
-export const connection = new IORedis({
+export const redisConn = new IORedis({
     host: process.env.REDIS_HOST || 'localhost',
     port: Number(process.env.REDIS_PORT || 6379),
     maxRetriesPerRequest: null
 });
+
+redisConn.on('error', (err) => pinoLogger.error({ err }, 'Redis Error'));

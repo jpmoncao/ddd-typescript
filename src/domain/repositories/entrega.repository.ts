@@ -8,3 +8,9 @@ export interface EntregaRepository {
     save(entrega: Entrega): Promise<void>;
     saveMany(entregas: Entrega[]): Promise<void>;
 }
+
+export interface EntregaCacheRepository {
+    findAllByEntregadorId(entregadorId: string): Promise<Entrega[] | null>;
+    saveManyByEntregadorId(entregadorId: string, entregas: Entrega[]): Promise<void>;
+    clearByEntregadorId(entregadorid: string): Promise<void>;
+}
