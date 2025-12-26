@@ -12,38 +12,7 @@ export abstract class BaseController {
     abstract docs: RouteDocsConfig;
 
     protected analyzeError(res: Response, error: unknown) {
-        if (error instanceof AppError) {
-            pinoLogger.warn({
-                status: error.status,
-                message: error.message
-            }, 'Business Logic Error');
-
-            return res.status(error.statusCode).json({
-                status: error.status,
-                message: error.message
-            });
-        }
-
-        if (error instanceof ZodError) {
-            pinoLogger.warn({
-                error: error.format()
-            }, 'Validation Error');
-
-            return res.status(HttpStatusCode.BAD_REQUEST).json({
-                status: 'zod_validation_error',
-                message: 'Dados inválidos.',
-                issues: error.format()
-            });
-        }
-
-        pinoLogger.error({ stack: error instanceof Error ? error.stack : undefined }, 'Internal server error');
-        return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            status: 'error',
-            message: 'Internal server error.',
-            ...(process.env.NODE_ENV === 'development' && {
-                stack: error instanceof Error ? error.stack : undefined
-            })
-        });
+        throw error;
     }
 
     protected ok<T>(res: Response, message: string, dto?: T) {

@@ -14,6 +14,7 @@ import { setupDashboards } from "./infra/http/docs/setup.docs";
 import { entregasRouter } from "./infra/http/routers/entrega.router";
 import { entregadoresRouter } from "./infra/http/routers/entregador.router";
 import { destinatariosRouter } from "./infra/http/routers/destinatario.router";
+import { errorHandler } from "./infra/http/middlewares/error-handler.middleware";
 
 export function createApp(emailQueue: EmailQueue) {
     const app = express();
@@ -30,6 +31,7 @@ export function createApp(emailQueue: EmailQueue) {
     app.use('/entregadores', entregadoresRouter);
     app.use('/destinatarios', destinatariosRouter);
 
+    app.use(errorHandler);
 
     return app;
 }
