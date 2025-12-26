@@ -33,7 +33,21 @@ const app = express();
 app.use(express.json());
 
 // Middleware do Helmet
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            // Permite scripts do próprio site, scripts inline (necessário para o Scalar) e do CDN
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+            // Permite estilos (CSS) do CDN e inline
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+            // Permite imagens do CDN e base64 (data:)
+            imgSrc: ["'self'", "data:", "https://cdn.jsdelivr.net"],
+            // Permite conectar na própria API
+            connectSrc: ["'self'"]
+        },
+    },
+}));
 
 // Adicionando o CORS
 app.use(cors({
