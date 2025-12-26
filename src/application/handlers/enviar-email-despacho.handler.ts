@@ -13,7 +13,7 @@ export class EnviarEmailDespachoHandler implements DomainEventHandler {
     public handle = async (event: EntregaDespachadaEvent) => {
         const destinatario = await this.destinatarioRepository.findById(event.payload.destinatarioId);
         if (!destinatario) {
-            pinoLogger.warn(`[❌ Mailservice] Destinatário com ID ${event.payload.destinatarioId} não encontrado. Não foi possível enviar o email.`);
+            pinoLogger.warn(`[✕ Mailservice] Destinatário com ID ${event.payload.destinatarioId} não encontrado. Não foi possível enviar o email.`);
             return;
         }
 

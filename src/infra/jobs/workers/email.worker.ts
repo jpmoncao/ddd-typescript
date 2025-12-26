@@ -24,10 +24,10 @@ export function emailWorker(message: string): Worker {
 
     // Listeners
     worker.on('completed', job => {
-        pinoLogger.info(`[✅ Job] #${job.id} ok`);
+        pinoLogger.info(`[✓ Job] #${job.id} ok`);
     });
     worker.on('failed', (job, err) => {
-        pinoLogger.warn({ error: err.message }, `[❌ Job] #${job?.id} falhou`);
+        pinoLogger.warn({ error: err.message }, `[✕ Job] #${job?.id} falhou`);
     });
 
     return worker;

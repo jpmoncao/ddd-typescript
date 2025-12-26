@@ -49,11 +49,11 @@ export class NodemailerMailGateway implements MailGateway {
         });
 
         if (this.DEV_MODE) {
-            pinoLogger.info(`[📧 Mailservice] URL: ${nodemailer.getTestMessageUrl(message)}`);
+            pinoLogger.info(`[✓ Mailservice] URL: ${nodemailer.getTestMessageUrl(message)}`);
             return message!;
         }
 
-        pinoLogger.info(`[📧 Mailservice] Mensagem enviada: ${message.messageId}`);
+        pinoLogger.info(`[✓ Mailservice] Mensagem enviada: ${message.messageId}`);
         return message!;
     }
 }
