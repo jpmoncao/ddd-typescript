@@ -1,99 +1,74 @@
-import dotenv from 'dotenv'
-import express from "express";
-import cors from 'cors';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import { apiReference } from '@scalar/express-api-reference';
-import { ExpressAdapter } from '@bull-board/express';
-import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-
-import { getOpenApiSpec } from './infra/http/docs/open-api-spec';
-
-import { emailWorker } from './infra/jobs/workers/email.worker'
+import dotenv from 'dotenv';
+import { createApp } from './app';
 import { EmailQueue } from './infra/jobs/queues/email.queue';
-
-import { loggerMiddleware } from './infra/http/middlewares/logger.middleware';
-
-import { entregasRouter } from "./infra/http/routers/entrega.router";
-import { entregadoresRouter } from "./infra/http/routers/entregador.router";
-import { destinatariosRouter } from "./infra/http/routers/destinatario.router";
+import { emailWorker } from './infra/jobs/workers/email.worker';
+import { prisma } from './infra/database/prisma/client';
+import { redisConn } from './infra/database/redis/conn';
+import { pinoLogger as logger } from './infra/loggers/pino.logger';
 
 dotenv.config({ quiet: true });
 
-// Configurações da API
-const HOST = process.env.API_HOST ?? 'http://localhost';
 const PORT = process.env.API_PORT ?? '5000';
-const API_URL = HOST + ':' + PORT;
 
-// Instância do Express
-const app = express();
+async function bootstrap() {
+    // Instanciar queues
+    const emailQueue = new EmailQueue();
 
-// Instâncias de uso do Express
-app.use(express.json());
+    // Iniciar aplicação
+    const app = createApp(emailQueue);
 
-// Middleware do Helmet
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            // Permite scripts do próprio site, scripts inline (necessário para o Scalar) e do CDN
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-            // Permite estilos (CSS) do CDN e inline
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-            // Permite imagens do CDN e base64 (data:)
-            imgSrc: ["'self'", "data:", "https://cdn.jsdelivr.net"],
-            // Permite conectar na própria API
-            connectSrc: ["'self'"]
-        },
-    },
-}));
+    // Iniciar Servidor HTTP
+    const server = app.listen(PORT, () => {
+        console.log(`✅ Server running on port ${PORT}`);
+        console.log(`📄 Docs: http://localhost:${PORT}/docs`);
+        console.log(`📊 Queues: http://localhost:${PORT}/admin/queues`);
+    });
 
-// Adicionando o CORS
-app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-}));
+    // Iniciar Workers
+    const workerInstance = emailWorker('✅ Email Worker started');
 
-// Adicionar o rate limit do Express
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: 'Muitas requisições deste IP, tente novamente mais tarde.',
-    standardHeaders: true,
-    legacyHeaders: false,
-}));
+    const shutdown = async (signal: string) => {
+        console.log(`\n🛑 ${signal} received. Starting graceful shutdown...`);
 
-// Adicionando Bull Board na API
-const emailQueue = new EmailQueue();
-const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath('/admin/queues');
-createBullBoard({ queues: [new BullMQAdapter(emailQueue.queue)], serverAdapter });
-app.use('/admin/queues', serverAdapter.getRouter());
+        server.close(async () => {
+            console.log('🛑 HTTP Server closed.');
 
-// Middleware do logger
-app.use(loggerMiddleware);
+            try {
+                if (workerInstance) {
+                    console.log('🛑 Stopping Workers...');
+                    await workerInstance.close();
+                }
 
-// Rotas da aplicação
-app.use('/entregas', entregasRouter);
-app.use('/entregadores', entregadoresRouter);
-app.use('/destinatarios', destinatariosRouter);
+                console.log('🛑 Closing Queues...');
+                await emailQueue.queue.close();
 
-// Adicionando Scalar Docs UI na API
-app.use('/docs', apiReference({
-    content: getOpenApiSpec(),
-    theme: 'kepler',
-    pageTitle: 'Documentação Logistics API',
-    defaultOpenAllTags: true,
-    showDeveloperTools: "never"
-}));
+                console.log('🛑 Disconnecting Database...');
+                await prisma.$disconnect();
 
-// Iniciando API
-app.listen(PORT, () => {
-    console.log(`✅ API is running: ${API_URL}`)
-    console.log(`📊 Bull Board rodando em: ${API_URL}/admin/queues`);
-    console.log(`📄 Documentação rodando em: ${API_URL}/docs`);
+                console.log('🛑 Disconnecting Redis...');
+                await redisConn.quit();
+
+                console.log('✅ Shutdown success.');
+                process.exit(0);
+            } catch (err) {
+                logger.error({ err }, '❌ Error during shutdown');
+                process.exit(1);
+            }
+        });
+
+        setTimeout(() => {
+            logger.error('❌ Shutdown timeout. Force exit.');
+            process.exit(1);
+        }, 10000).unref();
+    };
+
+    // Listeners
+    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+}
+
+// Tratamento de erros globais no boot
+bootstrap().catch(err => {
+    logger.fatal({ err }, '❌ Fatal Error during bootstrap');
+    process.exit(1);
 });
-
-// Iniciando Email Worker
-emailWorker('✅ Email Worker is running.');

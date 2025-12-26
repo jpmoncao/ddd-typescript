@@ -1,8 +1,7 @@
 import Redis from 'ioredis';
-import { CacheProvider } from '../../application/providers/cache.provider';
 import { redisConn } from '../database/redis/conn';
 
-export class RedisCacheProvider implements CacheProvider {
+export class RedisCacheProvider {
     private client: Redis;
 
     constructor() {
